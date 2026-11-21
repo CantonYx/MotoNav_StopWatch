@@ -588,7 +588,7 @@ struct ContentView: View {
                 \(navi.extraInfo)
                 小地图：\(map.infoText)
                 地图数据累计发送 \(ble.bulkKB) KB
-                                """)
+                """)
                 .font(.caption.monospaced())
                 .foregroundColor(ContentView.sub)
                 .textSelection(.enabled)
