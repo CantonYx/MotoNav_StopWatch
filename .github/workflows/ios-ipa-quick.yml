@@ -1,0 +1,28 @@
+name: Build IPA
+on:
+  workflow_dispatch:
+
+jobs:
+  ipa:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pods
+        working-directory: ios
+        run: |
+          sudo gem install cocoapods -v 1.16.2 --no-document
+          pod _1.16.2_ install --deployment
+      - name: Build and pack IPA
+        run: |
+          xcodebuild -workspace ios/MotoNav.xcworkspace -scheme MotoNav -destination 'generic/platform=iOS' -configuration Release -derivedDataPath /tmp/dd CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
+          mkdir -p out/Payload
+          ditto /tmp/dd/Build/Products/Release-iphoneos/MotoNav.app out/Payload/MotoNav.app
+          find out -name _CodeSignature -prune -exec rm -rf {} +
+          cd out && zip -qry MotoNav.ipa Payload && ls -lh MotoNav.ipa
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: motonav-ipa
+          path: out/MotoNav.ipa
+          retention-days: 14
